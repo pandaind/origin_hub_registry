@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  hub-registry:
+    build: .
+    container_name: origin_hub_registry
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist the SQLite database
+      - hub_data:/app/data
+      # Persist the uploaded asset bundles
+      - hub_storage:/app/storage
+    environment:
+      - DATABASE_URL=sqlite+aiosqlite:////app/data/origin_hub.db
+      - STORAGE_PATH=/app/storage
+      - SECRET_KEY=your-super-secret-key-change-me
+      - MAX_BUNDLE_SIZE_MB=50
+    restart: unless-stopped
+
+volumes:
+  hub_data:
+  hub_storage:
