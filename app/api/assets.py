@@ -40,6 +40,17 @@ async def get_asset(name: str, db: AsyncSession = Depends(get_db)):
     return await asset_service.get_asset(db, name)
 
 
+@router.get("/{name}/versions")
+async def list_asset_versions(name: str, db: AsyncSession = Depends(get_db)):
+    """List all non-yanked versions for an asset in descending order."""
+    asset = await asset_service.get_asset(db, name)
+    return [
+        {"version": v["version"], "published_at": v["published_at"]}
+        for v in asset["versions"]
+        if not v.get("yanked", False)
+    ]
+
+
 @router.post("/{name}/{version}", status_code=status.HTTP_201_CREATED, response_model=AssetOut)
 async def upload_asset(
     name: str,

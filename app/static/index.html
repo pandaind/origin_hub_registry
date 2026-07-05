@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Origin Hub Registry</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #12121a;
+      --surface-hover: #1a1a28;
+      --border: rgba(255,255,255,0.06);
+      --accent: #7c6cf1;
+      --accent-glow: rgba(124,108,241,0.3);
+      --text: #e8e8f0;
+      --text-dim: #888899;
+      --green: #34d399;
+      --red: #f87171;
+      --yellow: #fbbf24;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.2rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+      backdrop-filter: blur(20px);
+      background: rgba(10,10,15,0.8);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--accent), #a78bfa);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .badge {
+      font-size: 0.7rem;
+      background: var(--accent-glow);
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      padding: 0.15rem 0.5rem;
+      border-radius: 999px;
+      font-weight: 500;
+    }
+    .header-actions { display: flex; gap: 0.75rem; align-items: center; }
+    .stat-pill {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+    }
+    .stat-pill span { color: var(--text); font-weight: 600; margin-left: 0.25rem; }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 5rem 2rem 3rem;
+      background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(124,108,241,0.15) 0%, transparent 70%);
+    }
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      background: linear-gradient(135deg, #fff 40%, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+    }
+    .hero p { color: var(--text-dim); font-size: 1.1rem; margin-bottom: 2rem; }
+
+    /* Search */
+    .search-wrapper {
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-dim);
+      font-size: 1rem;
+    }
+    #search-input {
+      width: 100%;
+      padding: 0.9rem 1rem 0.9rem 3rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    #search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    #search-input::placeholder { color: var(--text-dim); }
+    .filter-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-dim);
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .filter-btn.active, .filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: var(--accent-glow);
+    }
+
+    /* Main layout */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 2rem 4rem; }
+    .section-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-dim);
+      margin-bottom: 1.25rem;
+      font-weight: 600;
+    }
+
+    /* Grid */
+    #assets-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 3rem;
+    }
+    .asset-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+    .asset-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 20%, var(--accent-glow), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .asset-card:hover {
+      border-color: rgba(124,108,241,0.4);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+    .asset-card:hover::before { opacity: 1; }
+    .card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 0.75rem; }
+    .card-type {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      font-weight: 600;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+    .type-skill { background: rgba(52,211,153,0.15); color: var(--green); }
+    .type-agent { background: rgba(124,108,241,0.15); color: var(--accent); }
+    .type-instruction { background: rgba(251,191,36,0.15); color: var(--yellow); }
+    .type-workflow { background: rgba(248,113,113,0.15); color: var(--red); }
+    .type-extension { background: rgba(100,200,255,0.15); color: #64c8ff; }
+    .card-downloads { font-size: 0.8rem; color: var(--text-dim); }
+    .card-name {
+      font-size: 1rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.4rem;
+      font-family: 'Courier New', monospace;
+    }
+    .card-desc { font-size: 0.875rem; color: var(--text-dim); line-height: 1.5; margin-bottom: 1rem; }
+    .card-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .tag {
+      font-size: 0.72rem;
+      padding: 0.15rem 0.5rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      color: var(--text-dim);
+    }
+    .card-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+    .install-snippet {
+      font-family: monospace;
+      background: rgba(0,0,0,0.3);
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      color: var(--accent);
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .install-snippet:hover { opacity: 0.8; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2rem;
+      max-width: 540px;
+      width: 100%;
+      position: relative;
+      animation: modalIn 0.2s ease;
+    }
+    @keyframes modalIn {
+      from { opacity: 0; transform: scale(0.95) translateY(10px); }
+      to   { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .modal-close {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: none;
+      border: none;
+      color: var(--text-dim);
+      font-size: 1.25rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .modal-close:hover { color: var(--text); }
+    .modal-name { font-size: 1.3rem; font-weight: 700; font-family: monospace; margin-bottom: 0.25rem; }
+    .modal-meta { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 1.25rem; }
+    .modal-desc { color: var(--text-dim); line-height: 1.7; margin-bottom: 1.5rem; }
+    .modal-install {
+      background: rgba(0,0,0,0.4);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 0.75rem 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .copy-btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      padding: 0.25rem 0.6rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+      transition: opacity 0.15s;
+    }
+    .copy-btn:hover { opacity: 0.85; }
+    .modal-versions { margin-top: 1.5rem; }
+    .modal-versions h3 { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .version-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .version-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 8px;
+    }
+    .version-tag { color: var(--green); font-family: monospace; }
+    .version-date { color: var(--text-dim); }
+
+    /* Empty / Loading */
+    .state-msg { text-align: center; padding: 4rem 2rem; color: var(--text-dim); }
+    .state-msg .icon { font-size: 3rem; margin-bottom: 1rem; }
+    .spinner {
+      display: inline-block;
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 1rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">⬡</div>
+    Origin Hub
+    <span class="badge">Registry</span>
+  </div>
+  <div class="header-actions">
+    <div class="stat-pill">Assets <span id="total-count">—</span></div>
+    <div class="stat-pill">API <a href="/docs" style="color:var(--accent);text-decoration:none">Docs ↗</a></div>
+  </div>
+</header>
+
+<section class="hero">
+  <h1>The AI Workflow Registry</h1>
+  <p>Discover, install, and share Agent Forge templates and AI workflows</p>
+  <div class="search-wrapper">
+    <span class="search-icon">🔍</span>
+    <input id="search-input" type="text" placeholder="Search agents, skills, workflows…" autocomplete="off" />
+  </div>
+  <div class="filter-row" id="type-filters">
+    <button class="filter-btn active" data-type="">All</button>
+    <button class="filter-btn" data-type="skill">Skill</button>
+    <button class="filter-btn" data-type="agent">Agent</button>
+    <button class="filter-btn" data-type="instruction">Instruction</button>
+    <button class="filter-btn" data-type="workflow">Workflow</button>
+    <button class="filter-btn" data-type="extension">Extension</button>
+  </div>
+</section>
+
+<main>
+  <div class="section-title" id="results-label">All Assets</div>
+  <div id="assets-grid"><div class="state-msg"><div class="spinner"></div><br>Loading assets…</div></div>
+</main>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" id="modal-content">
+    <button class="modal-close" id="modal-close">✕</button>
+    <div id="modal-body"></div>
+  </div>
+</div>
+
+<script>
+  const API = '';  // same origin
+  let allAssets = [];
+  let activeType = '';
+  let searchTimer = null;
+
+  async function fetchAssets(q = '', type = '') {
+    try {
+      const params = new URLSearchParams({ limit: 100 });
+      if (q) params.set('q', q);
+      const res = await fetch(`${API}/assets?${params}`);
+      const data = await res.json();
+      allAssets = data.items || [];
+      document.getElementById('total-count').textContent = data.total ?? allAssets.length;
+      renderGrid(allAssets, type);
+    } catch(e) {
+      document.getElementById('assets-grid').innerHTML =
+        `<div class="state-msg"><div class="icon">⚠️</div><p>Could not connect to the Hub API.<br><small>Is the registry running?</small></p></div>`;
+    }
+  }
+
+  function renderGrid(items, type = '') {
+    const filtered = type ? items.filter(a => a.type === type) : items;
+    const grid = document.getElementById('assets-grid');
+    const label = document.getElementById('results-label');
+    label.textContent = filtered.length === 0 ? 'No results' :
+      `${filtered.length} asset${filtered.length !== 1 ? 's' : ''}`;
+
+    if (!filtered.length) {
+      grid.innerHTML = `<div class="state-msg"><div class="icon">🔍</div><p>No assets matched your search.</p></div>`;
+      return;
+    }
+    grid.innerHTML = filtered.map(a => cardHTML(a)).join('');
+    grid.querySelectorAll('.asset-card').forEach((el, i) => {
+      el.addEventListener('click', (e) => {
+        if (!e.target.classList.contains('install-snippet')) openModal(filtered[i]);
+      });
+    });
+    grid.querySelectorAll('.install-snippet').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(el.textContent).then(() => {
+          el.textContent = 'Copied!';
+          setTimeout(() => el.textContent = `origin hub install ${el.dataset.name}`, 1500);
+        });
+      });
+    });
+  }
+
+  function typeClass(type) {
+    const map = { skill:'type-skill', agent:'type-agent', instruction:'type-instruction', workflow:'type-workflow', extension:'type-extension' };
+    return map[type] || 'type-skill';
+  }
+
+  function cardHTML(a) {
+    const tags = (a.tags || []).slice(0, 5).map(t => `<span class="tag">${t}</span>`).join('');
+    const latest = a.latest_version;
+    const version = latest ? `v${latest.version}` : 'no release';
+    const downloads = a.download_count || 0;
+    return `
+    <div class="asset-card">
+      <div class="card-header">
+        <span class="card-type ${typeClass(a.type)}">${a.type}</span>
+        <span class="card-downloads">↓ ${downloads}</span>
+      </div>
+      <div class="card-name">${a.name}</div>
+      <div class="card-desc">${a.description || 'No description provided.'}</div>
+      <div class="card-tags">${tags}</div>
+      <div class="card-footer">
+        <span>${a.author?.username ?? 'anonymous'} · ${version}</span>
+        <span class="install-snippet" data-name="${a.name}">origin hub install ${a.name}</span>
+      </div>
+    </div>`;
+  }
+
+  async function openModal(asset) {
+    let versions = [];
+    try {
+      const res = await fetch(`${API}/assets/${asset.name}/versions`);
+      versions = await res.json();
+    } catch(e) {}
+
+    const versionHTML = versions.length
+      ? versions.slice(0, 5).map(v => `
+        <div class="version-item">
+          <span class="version-tag">v${v.version}</span>
+          <span class="version-date">${new Date(v.published_at).toLocaleDateString()}</span>
+        </div>`).join('')
+      : '<p style="color:var(--text-dim);font-size:0.85rem">No version history available.</p>';
+
+    document.getElementById('modal-body').innerHTML = `
+      <span class="card-type ${typeClass(asset.type)}" style="margin-bottom:0.75rem;display:inline-block">${asset.type}</span>
+      <div class="modal-name">${asset.name}</div>
+      <div class="modal-meta">by ${asset.author?.username ?? 'anonymous'} · ${asset.download_count || 0} downloads</div>
+      <div class="modal-desc">${asset.description || 'No description provided.'}</div>
+      <div class="modal-install">
+        <span>origin hub install ${asset.name}</span>
+        <button class="copy-btn" id="copy-install-btn">Copy</button>
+      </div>
+      <div class="modal-versions">
+        <h3>Version History</h3>
+        <div class="version-list">${versionHTML}</div>
+      </div>`;
+
+    document.getElementById('copy-install-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(`origin hub install ${asset.name}`);
+      document.getElementById('copy-install-btn').textContent = 'Copied!';
+      setTimeout(() => document.getElementById('copy-install-btn').textContent = 'Copy', 1500);
+    });
+
+    document.getElementById('modal-overlay').classList.add('open');
+  }
+
+  // Events
+  document.getElementById('modal-close').addEventListener('click', () =>
+    document.getElementById('modal-overlay').classList.remove('open'));
+  document.getElementById('modal-overlay').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('modal-overlay'))
+      document.getElementById('modal-overlay').classList.remove('open');
+  });
+
+  document.getElementById('search-input').addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => fetchAssets(e.target.value, activeType), 250);
+  });
+
+  document.getElementById('type-filters').addEventListener('click', (e) => {
+    if (!e.target.matches('.filter-btn')) return;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    e.target.classList.add('active');
+    activeType = e.target.dataset.type;
+    renderGrid(allAssets, activeType);
+  });
+
+  fetchAssets();
+</script>
+</body>
+</html>

@@ -1,9 +1,14 @@
 import uvicorn
+from pathlib import Path
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api import assets, auth
 from app.db.database import create_tables
+
+STATIC_DIR = Path(__file__).parent / "static"
 
 app = FastAPI(
     title="Origin Hub Registry",
@@ -21,6 +26,15 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(assets.router)
+
+if STATIC_DIR.exists():
+    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+@app.get("/", include_in_schema=False)
+async def dashboard():
+    """Serve the Hub Registry web dashboard."""
+    return FileResponse(STATIC_DIR / "index.html")
 
 
 @app.on_event("startup")
