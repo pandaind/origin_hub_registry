@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, File, Form, Query, UploadFile, status
 from fastapi.responses import FileResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.security import get_current_user
+from app.core.security import get_current_user, get_optional_user
 from app.db.database import get_db
 from app.models.user import User
 from app.schemas.asset import AssetListOut, AssetOut
@@ -17,10 +17,12 @@ async def list_assets(
     q: str = Query(None, description="Search query"),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    caller: User | None = Depends(get_optional_user),
 ):
-    """Search and list assets."""
-    return await asset_service.search_assets(db, q, limit, offset)
+    """Search and list assets. Private org assets are shown only to members."""
+    user_id = caller.id if caller else None
+    return await asset_service.search_assets(db, q, limit, offset, user_id=user_id)
 
 
 @router.get("/recommend", response_model=AssetListOut)
@@ -35,9 +37,14 @@ async def recommend_assets(
 
 
 @router.get("/{name}", response_model=AssetOut)
-async def get_asset(name: str, db: AsyncSession = Depends(get_db)):
+async def get_asset(
+    name: str,
+    db: AsyncSession = Depends(get_db),
+    caller: User | None = Depends(get_optional_user),
+):
     """Get an asset's metadata and version history."""
-    return await asset_service.get_asset(db, name)
+    user_id = caller.id if caller else None
+    return await asset_service.get_asset(db, name, user_id=user_id)
 
 
 @router.get("/{name}/versions")

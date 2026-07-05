@@ -14,10 +14,13 @@ class Asset(Base):
     __tablename__ = "assets"
 
     id: Mapped[str] = mapped_column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
-    name: Mapped[str] = mapped_column(String(128), unique=True, nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=False, index=True)
+    namespace: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)  # org slug, e.g. "acme"
+    is_private: Mapped[bool] = mapped_column(Boolean, default=False)
     type: Mapped[str] = mapped_column(String(32), nullable=False)
     description: Mapped[str] = mapped_column(Text, default="")
     author_id: Mapped[str] = mapped_column(String, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    org_id: Mapped[str | None] = mapped_column(String, ForeignKey("organizations.id", ondelete="SET NULL"), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime, server_default=func.now())
     download_count: Mapped[int] = mapped_column(Integer, default=0)
 

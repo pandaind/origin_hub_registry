@@ -63,3 +63,16 @@ async def get_current_user(
         )
 
     return user
+
+
+async def get_optional_user(
+    api_key_header: str = Security(api_key_header),
+    db: AsyncSession = Depends(get_db)
+) -> User | None:
+    """Like get_current_user but returns None instead of raising if no valid key is provided."""
+    if not api_key_header:
+        return None
+    try:
+        return await get_current_user(api_key_header=api_key_header, db=db)
+    except HTTPException:
+        return None
