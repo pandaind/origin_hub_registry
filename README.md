@@ -8,19 +8,19 @@ Central asset registry for the Origin CLI — publish, discover, and install AI 
 
 ## Features
 
-### Core Capabilities (Phase 1)
+### Core Capabilities
 - **User Authentication**: Secure registration and API Key generation.
 - **Asset Management**: Upload and download asset bundles (`.originpkg`).
 - **Discovery**: Search, filter, and list assets by type and tags.
 - **Versioning**: Track asset versions, dependencies, and metadata history.
 
-### Enterprise & Teams (Phase 2)
+### Enterprise & Teams
 - **Organizations & Namespaces**: Group assets under an organization (e.g., `logicist/my-agent`).
 - **Private Assets**: Restrict asset visibility and access strictly to organization members.
 - **Role-Based Access Control (RBAC)**: Manage organization members and owners with distinct permissions.
 - **Flexible Auth**: Serve public assets openly while enforcing authentication for private actions.
 
-### Metrics & Safety (Phase 3)
+### Metrics & Safety
 - **Download Statistics**: Track and display the number of times an asset bundle is downloaded.
 - **Version Yanking**: Safely deprecate specific asset versions, preventing new installations while preserving metadata history.
 
