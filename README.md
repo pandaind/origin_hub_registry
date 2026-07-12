@@ -1,5 +1,9 @@
 # Origin Hub Registry
 
+[![Docker Image Version](https://img.shields.io/docker/v/logicist/origin-hub-registry?sort=semver)](https://hub.docker.com/r/logicist/origin-hub-registry)
+[![Docker Pulls](https://img.shields.io/docker/pulls/logicist/origin-hub-registry)](https://hub.docker.com/r/logicist/origin-hub-registry)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 Central asset registry for the Origin CLI — publish, discover, and install AI workflow templates, skills, agents, and extensions.
 
 ## Features
@@ -16,9 +20,9 @@ Central asset registry for the Origin CLI — publish, discover, and install AI 
 - **Role-Based Access Control (RBAC)**: Manage organization members and owners with distinct permissions.
 - **Flexible Auth**: Serve public assets openly while enforcing authentication for private actions.
 
-### Upcoming Roadmap (Phase 3 & 4)
-- **Phase 3 (Metrics & Safety)**: Download statistics and version deprecation (yanking).
-- **Phase 4 (Scale)**: S3 backend support and multi-registry federation for enterprise environments.
+### Metrics & Safety (Phase 3)
+- **Download Statistics**: Track and display the number of times an asset bundle is downloaded.
+- **Version Yanking**: Safely deprecate specific asset versions, preventing new installations while preserving metadata history.
 
 ---
 
