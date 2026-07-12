@@ -16,7 +16,7 @@
 #         #   python3 -c "import secrets; print(secrets.token_hex(32))"
 #
 #    3. Pull and run:
-#         docker compose -f docker-compose.prod.yml up -d
+#         docker compose -f docker-compose.prod.yml up -d --remove-orphans
 #
 #    4. Open: http://localhost:8000
 #       API Docs: http://localhost:8000/docs
@@ -27,6 +27,10 @@
 #  To stop:
 #    docker compose -f docker-compose.prod.yml down
 # ─────────────────────────────────────────────────────────────────────────────
+
+# Explicit project name keeps prod isolated from dev stack (avoids port/name conflicts)
+name: origin-hub-prod
+
 
 services:
   hub-registry:

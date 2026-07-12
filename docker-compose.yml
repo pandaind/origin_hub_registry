@@ -8,6 +8,8 @@
 #    docker compose down           # stop
 # ─────────────────────────────────────────────────────────────
 
+name: origin-hub
+
 services:
   hub-registry:
     image: ${IMAGE_NAME:-logicist/origin-hub-registry}:${IMAGE_TAG:-latest}
