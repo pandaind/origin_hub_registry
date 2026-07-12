@@ -45,7 +45,7 @@ export function HomePage() {
             className="text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.5rem] leading-[1.1]"
             style={{ color: 'var(--text)' }}
           >
-            The AI Workflow{' '}
+            Origin Hub{' '}
             <span
               className="bg-gradient-to-br from-violet-400 to-purple-500 bg-clip-text text-transparent"
             >
@@ -53,7 +53,7 @@ export function HomePage() {
             </span>
           </h1>
           <p className="mt-4 text-base sm:text-lg" style={{ color: 'var(--text-dim)' }}>
-            Discover, install, and share Agent Forge templates and AI workflows
+            The central registry for Origin CLI — publish, discover, and install skills, agents, workflows, and extensions
           </p>
 
           <div className="mt-8 space-y-4">
