@@ -1,40 +1,82 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
+# ── Stage 1: Build React UI ───────────────────────────────────────────────────
+FROM node:20-alpine AS node-builder
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    PATH="/app/.venv/bin:$PATH"
+WORKDIR /build/ui
 
-# Set the working directory in the container
-WORKDIR /app
+# Cache npm deps separately from source
+COPY ui/package.json ui/package-lock.json ./
+RUN npm ci --frozen-lockfile
 
-# Install system dependencies
+# Copy source and build
+COPY ui/ ./
+RUN npm run build
+# vite.config.ts → build.outDir = '../app/static'
+# → output lands at /build/app/static/ (one level up from /build/ui/)
+
+
+# ── Stage 2: Install Python deps ─────────────────────────────────────────────
+FROM python:3.11-slim AS python-builder
+
+WORKDIR /build
+
+# Install build tools, then clean up in the same layer
 RUN apt-get update \
     && apt-get install -y --no-install-recommends gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy pyproject.toml
-COPY pyproject.toml ./
+# Copy the manifest and README (hatchling requires README.md during metadata build)
+COPY pyproject.toml README.md ./
 
-# Install the Python dependencies (install the project in standard mode, not editable)
+# Install into a prefix directory so we can copy it cleanly
 RUN pip install --upgrade pip \
-    && pip install .
+    && pip install --prefix=/install .
 
-# Copy the rest of the application code
+
+# ── Stage 3: Final lean runtime image ────────────────────────────────────────
+FROM python:3.11-slim AS runtime
+
+LABEL org.opencontainers.image.title="Origin Hub Registry"
+LABEL org.opencontainers.image.description="Central asset registry for Origin CLI"
+LABEL org.opencontainers.image.source="https://github.com/YOUR_ORG/origin_hub_registry"
+
+# Runtime env
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH="/app" \
+    PORT=8000 \
+    WORKERS=1
+
+WORKDIR /app
+
+# Copy installed Python packages from builder
+COPY --from=python-builder /install /usr/local
+
+# Copy application source
 COPY app/ ./app/
 
-# Create a volume directory for storage and database
-RUN mkdir -p /app/storage /app/data
+# Copy the compiled React SPA (written to app/static by vite build)
+COPY --from=node-builder /build/app/static ./app/static/
 
-# Default environment variables for the container
-ENV DATABASE_URL="sqlite+aiosqlite:////app/data/origin_hub.db" \
-    STORAGE_PATH="/app/storage" \
-    SECRET_KEY="change-me-in-production-use-a-long-random-string" \
-    MAX_BUNDLE_SIZE_MB=50
+# Create persistent data directories and a non-root user
+RUN mkdir -p /data /storage \
+    && addgroup --system --gid 1001 appgroup \
+    && adduser  --system --uid 1001 --ingroup appgroup --no-create-home appuser \
+    && chown -R appuser:appgroup /data /storage /app
 
-# Expose port 8000 for the FastAPI server
-EXPOSE 8000
+USER appuser
 
-# Run the FastAPI application using Uvicorn
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Non-secret defaults (override via docker-compose env_file or -e flags)
+ENV DATABASE_URL="sqlite+aiosqlite:////data/origin_hub.db" \
+    STORAGE_PATH="/storage" \
+    MAX_BUNDLE_SIZE_MB=50 \
+    DEFAULT_PAGE_SIZE=20 \
+    LOG_LEVEL="info"
+# SECRET_KEY must be set at runtime — never bake secrets into an image.
+
+EXPOSE ${PORT}
+
+# Built-in liveness check
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:${PORT}/health')" || exit 1
+
+CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT} --workers ${WORKERS} --log-level ${LOG_LEVEL}"]

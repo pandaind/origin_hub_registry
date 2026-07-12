@@ -1,0 +1,56 @@
+# ─────────────────────────────────────────────────────────────
+#  Origin Hub Registry — Local Dev docker-compose override
+#
+#  Usage:
+#    docker compose -f docker-compose.yml -f docker-compose.dev.yml up
+#
+#  Or alias it in your shell:
+#    alias dcdev='docker compose -f docker-compose.yml -f docker-compose.dev.yml'
+#    dcdev up
+# ─────────────────────────────────────────────────────────────
+
+services:
+  # ── FastAPI backend with hot-reload ─────────────────────────
+  hub-registry:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: origin-hub-registry:dev
+    container_name: origin_hub_registry_dev
+    restart: "no"
+    env_file:
+      - .env
+    environment:
+      - LOG_LEVEL=debug
+      - WORKERS=1
+    ports:
+      - "8000:8000"
+    volumes:
+      # Live-reload backend source
+      - ./app:/app/app
+      # Persist dev DB and storage on host for easy inspection
+      - ./data:/data
+      - ./storage:/storage
+    command: >
+      uvicorn app.main:app
+      --host 0.0.0.0
+      --port 8000
+      --reload
+      --log-level debug
+
+  # ── Vite dev server for the React UI ────────────────────────
+  hub-ui:
+    image: node:20-alpine
+    container_name: origin_hub_ui_dev
+    working_dir: /ui
+    restart: "no"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./ui:/ui
+      - /ui/node_modules        # anonymous volume keeps node_modules in container
+    environment:
+      - CHOKIDAR_USEPOLLING=true  # needed for file-watching inside Docker on mac/win
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    depends_on:
+      - hub-registry

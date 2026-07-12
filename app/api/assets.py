@@ -52,9 +52,9 @@ async def list_asset_versions(name: str, db: AsyncSession = Depends(get_db)):
     """List all non-yanked versions for an asset in descending order."""
     asset = await asset_service.get_asset(db, name)
     return [
-        {"version": v["version"], "published_at": v["published_at"]}
-        for v in asset["versions"]
-        if not v.get("yanked", False)
+        {"version": v.version, "published_at": v.published_at}
+        for v in asset.versions
+        if not v.yanked
     ]
 
 

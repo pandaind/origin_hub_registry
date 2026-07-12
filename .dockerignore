@@ -1,7 +1,54 @@
+# Python
 .venv/
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 .pytest_cache/
-storage/
+htmlcov/
+.coverage
+*.egg-info/
+dist/
+build/
+
+# Data & storage (never bake into image)
 origin_hub.db
+storage/
+data/
+
+# Environment secrets
 .env
+.env.*
+!.env.example
+
+# Node / UI
+ui/node_modules/
+ui/.vite/
+ui/dist/           # built by the multi-stage Dockerfile itself, not needed in context
+ui/.env
+ui/.env.*
+
+# OS & editors
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# CI
+.github/
+
+# Docs & misc
+*.md
+!README.md
+tests/

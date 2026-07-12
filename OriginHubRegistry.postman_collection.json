@@ -1,0 +1,535 @@
+{
+  "info": {
+    "name": "Origin Hub Registry",
+    "description": "Complete API collection for the Origin Hub Registry — the central asset registry for Origin CLI.\n\n## Quick Start\n1. Run the server: `uvicorn app.main:app --reload`\n2. Set the `api_key` collection variable after calling **Register User**\n3. Run requests in folder order for a full demo flow\n\n## Auth\nAll protected endpoints require the header:\n```\nAuthorization: Bearer {{api_key}}\n```",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:8000", "type": "string" },
+    { "key": "api_key",  "value": "",                     "type": "string", "description": "Paste your ohub_... key here after registering" },
+    { "key": "asset_name", "value": "react-component-builder", "type": "string" },
+    { "key": "asset_version", "value": "1.0.0", "type": "string" },
+    { "key": "org_slug", "value": "acme-ai", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "🔑 Auth",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.api_key) {",
+                  "  pm.collectionVariables.set('api_key', res.api_key);",
+                  "  pm.test('API key saved to collection variable', () => pm.expect(res.api_key).to.include('ohub_'));",
+                  "}",
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"email\": \"alice@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "description": "Register a new user. Returns an API key shown **once** — save it immediately.\n\nThe test script automatically saves the key to the `api_key` collection variable."
+          }
+        },
+        {
+          "name": "Get Current User (me)",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "url": { "raw": "{{base_url}}/auth/me", "host": ["{{base_url}}"], "path": ["auth", "me"] },
+            "description": "Verify your API key and retrieve your user profile."
+          }
+        }
+      ]
+    },
+    {
+      "name": "📦 Assets — Browse",
+      "item": [
+        {
+          "name": "List All Assets",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets?limit=20&offset=0",
+              "host": ["{{base_url}}"],
+              "path": ["assets"],
+              "query": [
+                { "key": "limit",  "value": "20" },
+                { "key": "offset", "value": "0" }
+              ]
+            },
+            "description": "Returns a paginated list of all public assets sorted by download count."
+          }
+        },
+        {
+          "name": "Search Assets — by keyword",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets?q=react&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["assets"],
+              "query": [
+                { "key": "q",     "value": "react", "description": "Full-text search across name, description, tags" },
+                { "key": "limit", "value": "10" }
+              ]
+            },
+            "description": "Full-text search across asset names, descriptions, and tags."
+          }
+        },
+        {
+          "name": "Search Assets — paginated",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets?limit=5&offset=5",
+              "host": ["{{base_url}}"],
+              "path": ["assets"],
+              "query": [
+                { "key": "limit",  "value": "5" },
+                { "key": "offset", "value": "5" }
+              ]
+            },
+            "description": "Paginate through results using limit + offset."
+          }
+        },
+        {
+          "name": "Recommend Assets — by tech tags",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets/recommend?tech=react,typescript&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "recommend"],
+              "query": [
+                { "key": "tech",  "value": "react,typescript", "description": "Comma-separated tech tags" },
+                { "key": "limit", "value": "5" }
+              ]
+            },
+            "description": "Get AI-workflow recommendations based on your tech stack."
+          }
+        },
+        {
+          "name": "Get Asset — single",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets/{{asset_name}}",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "{{asset_name}}"]
+            },
+            "description": "Fetch full metadata, all versions, and the latest release for a named asset."
+          }
+        },
+        {
+          "name": "List Asset Versions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets/{{asset_name}}/versions",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "{{asset_name}}", "versions"]
+            },
+            "description": "Returns all non-yanked versions in descending order."
+          }
+        },
+        {
+          "name": "Download Asset Bundle",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets/{{asset_name}}/{{asset_version}}/bundle",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "{{asset_name}}", "{{asset_version}}", "bundle"]
+            },
+            "description": "Download the `.originpkg` tarball for a specific version.\n\nResponse: `application/gzip` binary file."
+          }
+        }
+      ]
+    },
+    {
+      "name": "🚀 Assets — Publish",
+      "item": [
+        {
+          "name": "Upload Skill — react-component-builder",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "description": "A .originpkg (tar.gz) file containing hub-manifest.json",
+                  "src": []
+                }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/react-component-builder/1.0.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "react-component-builder", "1.0.0"]
+            },
+            "description": "Upload a Skill bundle.\n\n**hub-manifest.json** (must be inside the .originpkg tarball):\n```json\n{\n  \"name\": \"react-component-builder\",\n  \"version\": \"1.0.0\",\n  \"type\": \"skill\",\n  \"description\": \"Generates production-ready React components with TypeScript, Tailwind CSS, and accessibility best practices.\",\n  \"tags\": [\"react\", \"typescript\", \"tailwind\", \"ui\", \"frontend\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"SKILL.md\"]\n}\n```\n\n**Create the bundle locally:**\n```bash\npython3 -c \"\nimport json, tarfile, io\nm = json.dumps({\\\"name\\\":\\\"react-component-builder\\\",\\\"version\\\":\\\"1.0.0\\\",\\\"type\\\":\\\"skill\\\",\\\"description\\\":\\\"Generates React components\\\",\\\"tags\\\":[\\\"react\\\",\\\"typescript\\\"],\\\"author\\\":\\\"alice\\\",\\\"origin_cli_min_version\\\":\\\"0.1.0\\\",\\\"files\\\":[]}).encode()\nwith tarfile.open('react-component-builder-1.0.0.originpkg','w:gz') as t:\n    i=tarfile.TarInfo('react-component-builder/hub-manifest.json'); i.size=len(m)\n    t.addfile(i,io.BytesIO(m))\n\"\n```"
+          }
+        },
+        {
+          "name": "Upload Agent — code-review-agent",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": ".originpkg bundle" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/code-review-agent/2.1.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "code-review-agent", "2.1.0"]
+            },
+            "description": "Upload an Agent bundle.\n\n**hub-manifest.json:**\n```json\n{\n  \"name\": \"code-review-agent\",\n  \"version\": \"2.1.0\",\n  \"type\": \"agent\",\n  \"description\": \"Autonomous code review agent that enforces style guides, catches bugs, and suggests refactors across pull requests.\",\n  \"tags\": [\"code-review\", \"ci\", \"github\", \"quality\", \"automation\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"agent.yaml\", \"prompts/review.md\"]\n}\n```"
+          }
+        },
+        {
+          "name": "Upload Workflow — deploy-pipeline",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": ".originpkg bundle" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/deploy-pipeline/0.3.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "deploy-pipeline", "0.3.0"]
+            },
+            "description": "Upload a Workflow bundle.\n\n**hub-manifest.json:**\n```json\n{\n  \"name\": \"deploy-pipeline\",\n  \"version\": \"0.3.0\",\n  \"type\": \"workflow\",\n  \"description\": \"Multi-step deployment workflow: build → test → staging → production with automatic rollback on failure.\",\n  \"tags\": [\"deploy\", \"ci-cd\", \"docker\", \"kubernetes\", \"devops\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"workflow.yaml\"]\n}\n```"
+          }
+        },
+        {
+          "name": "Upload Instruction — python-docstring",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": ".originpkg bundle" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/python-docstring/1.0.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "python-docstring", "1.0.0"]
+            },
+            "description": "Upload an Instruction bundle.\n\n**hub-manifest.json:**\n```json\n{\n  \"name\": \"python-docstring\",\n  \"version\": \"1.0.0\",\n  \"type\": \"instruction\",\n  \"description\": \"System instruction that enforces Google-style Python docstrings for all functions and classes.\",\n  \"tags\": [\"python\", \"documentation\", \"style\", \"google-style\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"instruction.md\"]\n}\n```"
+          }
+        },
+        {
+          "name": "Upload Extension — vscode-origin",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": ".originpkg bundle" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/vscode-origin/0.1.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "vscode-origin", "0.1.0"]
+            },
+            "description": "Upload an Extension bundle.\n\n**hub-manifest.json:**\n```json\n{\n  \"name\": \"vscode-origin\",\n  \"version\": \"0.1.0\",\n  \"type\": \"extension\",\n  \"description\": \"VS Code extension that adds Origin CLI commands, hub browsing, and one-click skill installation directly from the editor.\",\n  \"tags\": [\"vscode\", \"editor\", \"ide\", \"extension\", \"tooling\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"extension.json\"]\n}\n```"
+          }
+        },
+        {
+          "name": "Upload New Version — react-component-builder v1.1.0",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{api_key}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [], "description": ".originpkg bundle with updated version" }
+              ]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/react-component-builder/1.1.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "react-component-builder", "1.1.0"]
+            },
+            "description": "Publish a new version of an existing asset.\n\n**hub-manifest.json:**\n```json\n{\n  \"name\": \"react-component-builder\",\n  \"version\": \"1.1.0\",\n  \"type\": \"skill\",\n  \"description\": \"v1.1.0: adds support for shadcn/ui patterns and Storybook story generation.\",\n  \"tags\": [\"react\", \"typescript\", \"tailwind\", \"shadcn\", \"storybook\"],\n  \"author\": \"alice\",\n  \"origin_cli_min_version\": \"0.1.0\",\n  \"files\": [\"SKILL.md\", \"CHANGELOG.md\"]\n}\n```"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Organizations",
+      "item": [
+        {
+          "name": "Create Organization",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 201', () => pm.response.to.have.status(201));",
+                  "const res = pm.response.json();",
+                  "if (res.slug) pm.collectionVariables.set('org_slug', res.slug);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"acme-ai\",\n  \"display_name\": \"Acme AI Labs\",\n  \"is_public\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/orgs", "host": ["{{base_url}}"], "path": ["orgs"] },
+            "description": "Create a new organization namespace. The authenticated user becomes the **owner**.\n\n**Slug rules:** letters, numbers, hyphens, underscores only. 2–64 chars."
+          }
+        },
+        {
+          "name": "Create Private Organization",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"stealth-labs\",\n  \"display_name\": \"Stealth Labs (Private)\",\n  \"is_public\": false\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/orgs", "host": ["{{base_url}}"], "path": ["orgs"] },
+            "description": "Create a private org — its assets will only be visible to members."
+          }
+        },
+        {
+          "name": "Add Member to Org",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"bob\",\n  \"role\": \"member\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orgs/{{org_slug}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["orgs", "{{org_slug}}", "members"]
+            },
+            "description": "Add a registered user to your organization. Only the **owner** can do this.\n\n**Roles:** `owner`, `member`"
+          }
+        },
+        {
+          "name": "Add Owner to Org",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"carol\",\n  \"role\": \"owner\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orgs/{{org_slug}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["orgs", "{{org_slug}}", "members"]
+            },
+            "description": "Grant ownership to another user."
+          }
+        },
+        {
+          "name": "List Org Members",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/orgs/{{org_slug}}/members",
+              "host": ["{{base_url}}"],
+              "path": ["orgs", "{{org_slug}}", "members"]
+            },
+            "description": "List all members and their roles. Public endpoint — no auth required."
+          }
+        }
+      ]
+    },
+    {
+      "name": "❤️ Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Server is healthy', () => {",
+                  "  pm.response.to.have.status(200);",
+                  "  pm.expect(pm.response.json().status).to.eql('ok');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{base_url}}/health", "host": ["{{base_url}}"], "path": ["health"] },
+            "description": "Liveness check. Returns `{\"status\": \"ok\"}` when the server is up."
+          }
+        }
+      ]
+    },
+    {
+      "name": "⚠️ Error Cases",
+      "item": [
+        {
+          "name": "Register — duplicate username",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"email\": \"alice2@example.com\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/auth/register", "host": ["{{base_url}}"], "path": ["auth", "register"] },
+            "description": "Expects **409 Conflict** — username already taken."
+          }
+        },
+        {
+          "name": "Get Asset — not found",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/assets/does-not-exist",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "does-not-exist"]
+            },
+            "description": "Expects **404 Not Found**."
+          }
+        },
+        {
+          "name": "Upload — no auth",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": [] }]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/some-asset/1.0.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "some-asset", "1.0.0"]
+            },
+            "description": "Expects **401 Unauthorized** — missing API key."
+          }
+        },
+        {
+          "name": "Upload — invalid API key",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer ohub_invalid_key_here" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [{ "key": "file", "type": "file", "src": [] }]
+            },
+            "url": {
+              "raw": "{{base_url}}/assets/some-asset/1.0.0",
+              "host": ["{{base_url}}"],
+              "path": ["assets", "some-asset", "1.0.0"]
+            },
+            "description": "Expects **401 Unauthorized** — invalid API key."
+          }
+        },
+        {
+          "name": "Create Org — invalid slug",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"my org with spaces!\",\n  \"display_name\": \"Bad Slug Org\",\n  \"is_public\": true\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": { "raw": "{{base_url}}/orgs", "host": ["{{base_url}}"], "path": ["orgs"] },
+            "description": "Expects **422 Unprocessable Entity** — slug contains invalid characters."
+          }
+        },
+        {
+          "name": "Add Member — org not found",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type",  "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{api_key}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice\",\n  \"role\": \"member\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/orgs/org-does-not-exist/members",
+              "host": ["{{base_url}}"],
+              "path": ["orgs", "org-does-not-exist", "members"]
+            },
+            "description": "Expects **404 Not Found**."
+          }
+        }
+      ]
+    }
+  ]
+}
