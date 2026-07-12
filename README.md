@@ -17,8 +17,8 @@ Central asset registry for the Origin CLI — publish, discover, and install AI 
 - **Flexible Auth**: Serve public assets openly while enforcing authentication for private actions.
 
 ### Upcoming Roadmap (Phase 3 & 4)
-- **Phase 3 (Metrics & Safety)**: Download statistics, version deprecation (yanking), and CI/CD webhooks.
-- **Phase 4 (Scale)**: S3/CDN backend support and multi-registry federation for enterprise environments.
+- **Phase 3 (Metrics & Safety)**: Download statistics and version deprecation (yanking).
+- **Phase 4 (Scale)**: S3 backend support and multi-registry federation for enterprise environments.
 
 ---
 
