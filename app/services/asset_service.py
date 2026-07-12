@@ -237,9 +237,14 @@ async def get_bundle_path(db: AsyncSession, name: str, version: str) -> str:
 
 
 async def yank_asset_version(db: AsyncSession, name: str, version: str, user: User) -> dict:
-    # Get asset to check permissions
-    asset = await get_asset(db, name, user_id=user.id)
-    
+    # Fetch the raw ORM Asset (not AssetOut) to access author_id and org_id
+    stmt_asset = select(Asset).where(Asset.name == name)
+    result_asset = await db.execute(stmt_asset)
+    asset = result_asset.scalar_one_or_none()
+
+    if not asset:
+        raise ResourceNotFoundException("Asset")
+
     is_authorized = False
     if asset.author_id == user.id:
         is_authorized = True
@@ -251,23 +256,23 @@ async def yank_asset_version(db: AsyncSession, name: str, version: str, user: Us
         role = (await db.execute(stmt_role)).scalar_one_or_none()
         if role == "owner":
             is_authorized = True
-            
+
     if not is_authorized:
         raise HubException(403, "Not authorized to yank this asset")
-        
-    stmt = select(AssetVersion).join(Asset).where(
-        Asset.name == name,
+
+    stmt = select(AssetVersion).where(
+        AssetVersion.asset_id == asset.id,
         AssetVersion.version == version
     )
     result = await db.execute(stmt)
     v = result.scalar_one_or_none()
-    
+
     if not v:
         raise ResourceNotFoundException("Asset version")
-        
+
     v.yanked = not v.yanked
     await db.commit()
-    
+
     return {"version": v.version, "yanked": v.yanked}
 
 
