@@ -14,7 +14,7 @@ export function AssetModal({ asset, onClose }: AssetModalProps) {
   const [copied, setCopied] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  const { data: versions = [], refetch } = useQuery({
+  const { data: versions = [] } = useQuery({
     queryKey: ['asset-versions', asset?.name],
     queryFn: () => api.assets.versions(asset!.name),
     enabled: !!asset,
@@ -149,46 +149,28 @@ export function AssetModal({ asset, onClose }: AssetModalProps) {
                 {versions.slice(0, 6).map((v, i) => (
                   <div
                     key={v.version}
-                    className="flex flex-col gap-2 rounded-lg px-3 py-2"
+                    className="flex items-center justify-between rounded-lg px-3 py-2"
                     style={{ backgroundColor: 'var(--surface-2)' }}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className={`flex items-center gap-2 font-mono text-sm ${v.yanked ? 'text-red-400 line-through' : 'text-emerald-500'}`}>
-                        {i === 0 && !v.yanked && (
-                          <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
-                            latest
-                          </span>
-                        )}
-                        {v.yanked && (
-                          <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-500">
-                            yanked
-                          </span>
-                        )}
-                        v{v.version}
-                      </span>
-                      <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-dim)' }}>
-                          <Calendar className="h-3 w-3" />
-                          {new Date(v.published_at).toLocaleDateString('en-US', {
-                            year: 'numeric', month: 'short', day: 'numeric',
-                          })}
+                    <span className={`flex items-center gap-2 font-mono text-sm ${v.yanked ? 'text-red-400 line-through opacity-60' : 'text-emerald-500'}`}>
+                      {i === 0 && !v.yanked && (
+                        <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
+                          latest
                         </span>
-                        <button
-                          onClick={async () => {
-                            try {
-                              await api.assets.yank(asset.name, v.version)
-                              refetch()
-                            } catch (e: any) {
-                              alert(e.message)
-                            }
-                          }}
-                          className="text-[10px] uppercase font-bold tracking-wider hover:opacity-70 transition-opacity"
-                          style={{ color: v.yanked ? '#34d399' : '#ef4444' }}
-                        >
-                          {v.yanked ? 'Restore' : 'Yank'}
-                        </button>
-                      </div>
-                    </div>
+                      )}
+                      {v.yanked && (
+                        <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-500 no-underline" style={{ textDecoration: 'none' }}>
+                          yanked
+                        </span>
+                      )}
+                      v{v.version}
+                    </span>
+                    <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-dim)' }}>
+                      <Calendar className="h-3 w-3" />
+                      {new Date(v.published_at).toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric',
+                      })}
+                    </span>
                   </div>
                 ))}
               </div>
