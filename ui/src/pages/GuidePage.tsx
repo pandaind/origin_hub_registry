@@ -12,7 +12,7 @@ function CodeSnippet({ command, output, className = "mb-4" }: { command: string,
   }
 
   return (
-    <div className={`relative overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner group ${className}`}>
+    <div className={`relative overflow-hidden rounded-lg bg-slate-950 p-4 font-mono text-sm shadow-inner group ${className}`}>
       <div className="flex items-center text-gray-300 pr-10">
         <span className="mr-3 select-none text-gray-600">$</span>
         {command}
@@ -78,13 +78,13 @@ export function GuidePage() {
               Origin bridges the gap between Spec Kit (The Manager) and Agent Forge (The Fleet of Workers). Get your environment up and running instantly.
             </p>
 
-            <h3 className="mb-3 text-lg font-semibold text-white">Global Setup</h3>
+            <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Global Setup</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
               Run this once on your machine to bootstrap necessary underlying tools (Node, npm, GitHub Copilot CLI, Spec Kit, Headroom AI).
             </p>
             <CodeSnippet command="origin setup" className="mb-8" />
 
-            <h3 className="mb-3 text-lg font-semibold text-white">Project Initialization</h3>
+            <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Project Initialization</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
               Run this inside any project directory to initialize the AI workspace. It scans your repository, generates implementation agents, and installs base Spec Kit commands.
             </p>
@@ -112,7 +112,7 @@ export function GuidePage() {
             <div className="space-y-8">
               {/* Auth */}
               <div>
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold" style={{ color: 'var(--text)' }}>
                   <Terminal className="h-4 w-4 text-purple-400" /> Authentication
                 </h3>
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
@@ -131,7 +131,7 @@ export function GuidePage() {
 
               {/* Discovery & Install */}
               <div>
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold" style={{ color: 'var(--text)' }}>
                   <Search className="h-4 w-4 text-blue-400" /> Discover & Install
                 </h3>
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
@@ -141,10 +141,10 @@ export function GuidePage() {
                   command="origin hub discover" 
                   output={
                     <>
-                      Scanning project stack... Found <b className="text-white">React</b> and <b className="text-white">TypeScript</b>.<br/>
+                      Scanning project stack... Found <b>React</b> and <b>TypeScript</b>.<br/>
                       Recommended assets:<br/>
-                      <span className="text-white">[1] logicist/react-expert</span><br/>
-                      <span className="text-white">[2] logicist/typescript-skill</span>
+                      <span>[1] logicist/react-expert</span><br/>
+                      <span>[2] logicist/typescript-skill</span>
                     </>
                   }
                   className="mb-4"
@@ -161,13 +161,13 @@ export function GuidePage() {
 
               {/* Publishing */}
               <div>
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-white">
+                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold" style={{ color: 'var(--text)' }}>
                   <CloudUpload className="h-4 w-4 text-amber-400" /> Publishing
                 </h3>
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
                   To publish, create a <code>hub-manifest.json</code> in your asset directory, then run the publish command.
                 </p>
-                <div className="relative mb-4 overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner text-gray-300">
+                <div className="relative mb-4 overflow-hidden rounded-lg bg-slate-950 p-4 font-mono text-sm shadow-inner text-gray-300">
                   <div className="mb-2 text-xs font-semibold text-gray-500">hub-manifest.json</div>
                   <pre className="text-gray-300">
 {`{
