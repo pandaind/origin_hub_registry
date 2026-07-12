@@ -1,63 +1,73 @@
 # Origin Hub Registry
 
-Central asset registry for Origin CLI.
-Serves as the backend for `origin hub *` commands.
+Central asset registry for the Origin CLI — publish, discover, and install AI workflow templates, skills, agents, and extensions.
 
-## Features (Phase 1)
-- User registration & API Key generation
-- Upload asset bundles (`.originpkg`)
-- Download asset bundles
-- Asset search & listing
-- Asset metadata & version history
+## Features
 
-## Getting Started (Dev)
+### Core Capabilities (Phase 1)
+- **User Authentication**: Secure registration and API Key generation.
+- **Asset Management**: Upload and download asset bundles (`.originpkg`).
+- **Discovery**: Search, filter, and list assets by type and tags.
+- **Versioning**: Track asset versions, dependencies, and metadata history.
 
-### Prerequisites
-- Python 3.9+
-- [uv](https://github.com/astral-sh/uv) or `pip`
-
-### Installation
-```bash
-# Set up env
-cp .env.example .env
-
-# Create venv and install
-python -m venv .venv
-source .venv/bin/activate
-pip install -e ".[dev]"
-```
-
-### Run Server
-```bash
-# Starts uvicorn with hot-reload
-hub
-# or
-uvicorn app.main:app --reload
-```
-
-Then visit:
-- **API Docs:** http://localhost:8000/docs
+### Enterprise & Teams (Phase 2)
+- **Organizations & Namespaces**: Group assets under an organization (e.g., `logicist/my-agent`).
+- **Private Assets**: Restrict asset visibility and access strictly to organization members.
+- **Role-Based Access Control (RBAC)**: Manage organization members and owners with distinct permissions.
+- **Flexible Auth**: Serve public assets openly while enforcing authentication for private actions.
 
 ---
 
-## Running with Docker (Production/Shareable)
+## Quick Start (Production / Docker)
 
-The registry is fully containerized and easy to run anywhere using Docker Compose. It automatically provisions persistent volumes for the SQLite database and asset storage.
+The registry is fully containerized with a built-in React web UI. Data persists automatically in Docker volumes.
 
-1. Ensure Docker Desktop (or the Docker daemon) is running.
-2. Build and start the container:
-   ```bash
-   docker-compose up --build -d
-   ```
-3. The server will be accessible at `http://localhost:8000`.
-
-To stop the server:
+### 1. Setup Environment
 ```bash
-docker-compose down
+# Copy the environment template
+cp .env.example .env
+
+# Generate a secure SECRET_KEY and paste it into .env
+make gen-secret
 ```
 
-## Contributing
-Contributions are welcome! Please feel free to submit a Pull Request.
+### 2. Build and Run
+```bash
+# Build the production image (React UI is built automatically)
+make build
+
+# Start the registry in the background
+make up
+```
+
+The registry UI and API will be available at **http://localhost:8000**
+
+### 3. Docker Hub Alternative
+Instead of building locally, you can pull the pre-built image:
+```bash
+docker pull logicist/origin-hub-registry:latest
+```
+
+---
+
+## Documentation & Tools
+
+- **API Docs (Swagger)**: http://localhost:8000/docs
+- **API Docs (ReDoc)**: http://localhost:8000/redoc
+- **Postman Collection**: Import `OriginHubRegistry.postman_collection.json` to test all endpoints.
+
+---
+
+## Local Development
+
+If you want to modify the code, use the local development setup which includes hot-reloading for both the API and the UI:
+
+```bash
+# Starts FastAPI (Port 8000) and Vite UI (Port 5173) with hot-reload
+make dev
+```
+
+See the [Makefile](Makefile) for a complete list of helpful commands.
 
 ## License
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
