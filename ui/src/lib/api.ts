@@ -4,11 +4,14 @@ const BASE = ''  // same origin via Vite proxy
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const token = localStorage.getItem('api_key')
-  const headers: HeadersInit = { 'Content-Type': 'application/json', ...init?.headers }
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (init?.headers) {
+    Object.assign(headers, init.headers)
+  }
   if (token) {
     headers['Authorization'] = `Bearer ${token}`
   }
-  
+
   const res = await fetch(`${BASE}${path}`, {
     ...init,
     headers,
