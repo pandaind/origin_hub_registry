@@ -22,37 +22,49 @@ Central asset registry for the Origin CLI — publish, discover, and install AI 
 
 ---
 
-## Quick Start (Production / Docker)
+## Quick Start
 
-The registry is fully containerized with a built-in React web UI. Data persists automatically in Docker volumes.
+### Option A — Pull from Docker Hub (recommended for new machines)
 
-### 1. Setup Environment
+No repo clone needed. Just download two files and run:
+
 ```bash
-# Copy the environment template
+# 1. Download the standalone compose file and env template
+curl -O https://raw.githubusercontent.com/pandaind/origin_hub_registry/master/docker-compose.prod.yml
+curl -O https://raw.githubusercontent.com/pandaind/origin_hub_registry/master/.env.example
 cp .env.example .env
 
-# Generate a secure SECRET_KEY and paste it into .env
-make gen-secret
+# 2. Set a strong secret key in .env
+#    (replace the CHANGE_ME value with the output of this command)
+python3 -c "import secrets; print(secrets.token_hex(32))"
+
+# 3. Pull the image and start
+docker compose -f docker-compose.prod.yml up -d
 ```
 
-### 2. Build and Run
+The UI and API will be available at **http://localhost:8000**
+
+To update to a newer release:
 ```bash
-# Build the production image (React UI is built automatically)
-make build
-
-# Start the registry in the background
-make up
-```
-
-The registry UI and API will be available at **http://localhost:8000**
-
-### 3. Docker Hub Alternative
-Instead of building locally, you can pull the pre-built image:
-```bash
-docker pull logicist/origin-hub-registry:latest
+docker compose -f docker-compose.prod.yml pull
+docker compose -f docker-compose.prod.yml up -d
 ```
 
 ---
+
+### Option B — Build & Publish from this machine
+
+```bash
+# Clone the repo, then:
+cp .env.example .env          # configure .env
+
+make build                    # build the image locally
+make publish                  # build + push to Docker Hub (requires docker login)
+
+make up                       # start using the locally built image
+make logs                     # tail logs
+make down                     # stop
+```
 
 ## Documentation & Tools
 

@@ -3,12 +3,12 @@ name: Docker Build & Publish
 on:
   push:
     branches:
-      - main
+      - master
     tags:
       - "v*"          # e.g. v1.0.0 triggers a versioned release
   pull_request:
     branches:
-      - main          # PRs only build (no push) to validate the Dockerfile
+      - master        # PRs only build (no push) to validate the Dockerfile
 
 env:
   REGISTRY: docker.io
@@ -39,11 +39,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       # ── Generate image tags ──────────────────────────────────
-      # On main push:  logicist/origin-hub-registry:latest
-      #                logicist/origin-hub-registry:sha-abc1234
-      # On tag v1.2.3: logicist/origin-hub-registry:1.2.3
-      #                logicist/origin-hub-registry:1.2
-      #                logicist/origin-hub-registry:latest
+      # On master push:  logicist/origin-hub-registry:latest
+      #                  logicist/origin-hub-registry:sha-abc1234
+      # On tag v1.2.3:   logicist/origin-hub-registry:1.2.3
+      #                  logicist/origin-hub-registry:1.2
+      #                  logicist/origin-hub-registry:latest
       - name: Extract metadata (tags, labels)
         id: meta
         uses: docker/metadata-action@v5
@@ -55,6 +55,11 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=sha,prefix=sha-,format=short
             type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Origin Hub Registry
+            org.opencontainers.image.description=Central asset registry for Origin CLI
+            org.opencontainers.image.vendor=logicist
+            org.opencontainers.image.source=https://github.com/pandaind/origin_hub_registry
 
       # ── Build & Push ─────────────────────────────────────────
       - name: Build and push Docker image

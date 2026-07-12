@@ -37,7 +37,9 @@ FROM python:3.11-slim AS runtime
 
 LABEL org.opencontainers.image.title="Origin Hub Registry"
 LABEL org.opencontainers.image.description="Central asset registry for Origin CLI"
-LABEL org.opencontainers.image.source="https://github.com/YOUR_ORG/origin_hub_registry"
+LABEL org.opencontainers.image.source="https://github.com/pandaind/origin_hub_registry"
+LABEL org.opencontainers.image.url="https://hub.docker.com/r/logicist/origin-hub-registry"
+LABEL org.opencontainers.image.vendor="logicist"
 
 # Runtime env
 ENV PYTHONDONTWRITEBYTECODE=1 \
