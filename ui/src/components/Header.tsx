@@ -48,6 +48,14 @@ export function Header({ totalAssets }: { totalAssets?: number }) {
             </div>
           )}
 
+          <Link
+            to="/guide"
+            className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs transition-colors"
+            style={{ borderColor: 'var(--border)', backgroundColor: 'var(--card-bg)', color: 'var(--text-dim)' }}
+          >
+            CLI Guide
+          </Link>
+
           <a
             href="/docs"
             target="_blank"
