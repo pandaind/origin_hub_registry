@@ -1,5 +1,37 @@
-import { Terminal, Copy, Package, Download, CloudUpload, ArrowRight } from 'lucide-react'
+import { useState } from 'react'
+import { Terminal, Copy, Check, Package, Download, CloudUpload, ArrowRight } from 'lucide-react'
 import { Header } from '@/components/Header'
+
+function CodeSnippet({ command, output, className = "mb-4" }: { command: string, output?: React.ReactNode, className?: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const copy = () => {
+    navigator.clipboard.writeText(command)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <div className={`relative overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner group ${className}`}>
+      <div className="flex items-center text-gray-300 pr-10">
+        <span className="mr-3 select-none text-gray-600">$</span>
+        {command}
+      </div>
+      {output && (
+        <div className="mt-2 pl-6 text-gray-400">
+          {output}
+        </div>
+      )}
+      <button
+        onClick={copy}
+        className="absolute right-2 top-2 rounded-md p-1.5 text-gray-400 opacity-0 transition-all hover:bg-white/10 hover:text-white group-hover:opacity-100"
+        title="Copy to clipboard"
+      >
+        {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
+      </button>
+    </div>
+  )
+}
 
 export function GuidePage() {
   return (
@@ -25,12 +57,7 @@ export function GuidePage() {
             <p className="mb-4" style={{ color: 'var(--text-dim)' }}>
               The Origin CLI is distributed as a standalone binary. Install it via our installation script:
             </p>
-            <div className="relative mb-4 overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner">
-              <div className="flex items-center text-gray-300">
-                <span className="mr-3 text-gray-600">$</span>
-                curl -sSL https://install.origin.dev/cli | bash
-              </div>
-            </div>
+            <CodeSnippet command="curl -sSL https://install.logic.ist/cli | bash" />
             <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
               Requires macOS or Linux. Windows users can use WSL2.
             </p>
@@ -50,12 +77,7 @@ export function GuidePage() {
             <p className="mb-4" style={{ color: 'var(--text-dim)' }}>
               Before downloading private assets or publishing your own, you need to log in to the registry.
             </p>
-            <div className="relative overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner">
-              <div className="flex items-center text-gray-300">
-                <span className="mr-3 text-gray-600">$</span>
-                origin auth login
-              </div>
-            </div>
+            <CodeSnippet command="origin auth login" className="" />
           </div>
         </section>
 
@@ -88,12 +110,7 @@ export function GuidePage() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner">
-              <div className="flex items-center text-gray-300">
-                <span className="mr-3 text-gray-600">$</span>
-                origin install logicist/weather-agent
-              </div>
-            </div>
+            <CodeSnippet command="origin install logicist/weather-agent" className="" />
           </div>
         </section>
 
@@ -126,17 +143,17 @@ export function GuidePage() {
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-lg bg-black/50 p-4 font-mono text-sm shadow-inner">
-              <div className="flex items-center text-gray-300">
-                <span className="mr-3 text-gray-600">$</span>
-                origin publish
-              </div>
-              <div className="mt-2 pl-6 text-gray-400">
-                Packaging bundle (1.2MB)...<br/>
-                Uploading logicist/data-analyzer@1.0.0...<br/>
-                <span className="text-emerald-400">Successfully published!</span>
-              </div>
-            </div>
+            <CodeSnippet 
+              command="origin publish" 
+              className=""
+              output={
+                <>
+                  Packaging bundle (1.2MB)...<br/>
+                  Uploading logicist/data-analyzer@1.0.0...<br/>
+                  <span className="text-emerald-400">Successfully published!</span>
+                </>
+              }
+            />
           </div>
         </section>
 
