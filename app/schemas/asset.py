@@ -15,6 +15,7 @@ class BundleManifest(BaseModel):
     author: str
     origin_cli_min_version: str = "0.1.0"
     files: List[str] = Field(default_factory=list)
+    install_dir: Optional[str] = None
 
 
 class AssetVersionOut(BaseModel):
