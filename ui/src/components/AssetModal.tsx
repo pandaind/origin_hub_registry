@@ -14,7 +14,7 @@ export function AssetModal({ asset, onClose }: AssetModalProps) {
   const [copied, setCopied] = useState(false)
   const overlayRef = useRef<HTMLDivElement>(null)
 
-  const { data: versions = [] } = useQuery({
+  const { data: versions = [], refetch } = useQuery({
     queryKey: ['asset-versions', asset?.name],
     queryFn: () => api.assets.versions(asset!.name),
     enabled: !!asset,
@@ -106,27 +106,33 @@ export function AssetModal({ asset, onClose }: AssetModalProps) {
           )}
 
           {/* install command */}
-          <div
-            className="mt-5 flex items-center justify-between rounded-xl px-4 py-3"
-            style={{ backgroundColor: 'var(--code-bg)', border: '1px solid var(--border)' }}
-          >
-            <code className="font-mono text-sm" style={{ color: 'var(--accent)' }}>
-              origin hub install {asset.name}
-            </code>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
-              style={copied
-                ? { backgroundColor: 'rgba(52,211,153,0.15)', color: '#34d399' }
-                : { backgroundColor: 'var(--accent)', color: '#fff' }
-              }
+          {(!versions[0] || !versions[0].yanked) ? (
+            <div
+              className="mt-5 flex items-center justify-between rounded-xl px-4 py-3"
+              style={{ backgroundColor: 'var(--code-bg)', border: '1px solid var(--border)' }}
             >
-              {copied
-                ? <><Check className="h-3.5 w-3.5" /> Copied!</>
-                : <><Copy className="h-3.5 w-3.5" /> Copy</>
-              }
-            </button>
-          </div>
+              <code className="font-mono text-sm" style={{ color: 'var(--accent)' }}>
+                origin hub install {asset.name}
+              </code>
+              <button
+                onClick={handleCopy}
+                className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all"
+                style={copied
+                  ? { backgroundColor: 'rgba(52,211,153,0.15)', color: '#34d399' }
+                  : { backgroundColor: 'var(--accent)', color: '#fff' }
+                }
+              >
+                {copied
+                  ? <><Check className="h-3.5 w-3.5" /> Copied!</>
+                  : <><Copy className="h-3.5 w-3.5" /> Copy</>
+                }
+              </button>
+            </div>
+          ) : (
+            <div className="mt-5 rounded-xl px-4 py-3 text-center text-sm font-medium text-red-400" style={{ backgroundColor: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
+              This version has been yanked and is no longer available for installation.
+            </div>
+          )}
 
           {/* version history */}
           <div className="mt-6">
@@ -143,23 +149,46 @@ export function AssetModal({ asset, onClose }: AssetModalProps) {
                 {versions.slice(0, 6).map((v, i) => (
                   <div
                     key={v.version}
-                    className="flex items-center justify-between rounded-lg px-3 py-2"
+                    className="flex flex-col gap-2 rounded-lg px-3 py-2"
                     style={{ backgroundColor: 'var(--surface-2)' }}
                   >
-                    <span className="flex items-center gap-2 font-mono text-sm text-emerald-500">
-                      {i === 0 && (
-                        <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
-                          latest
+                    <div className="flex items-center justify-between">
+                      <span className={`flex items-center gap-2 font-mono text-sm ${v.yanked ? 'text-red-400 line-through' : 'text-emerald-500'}`}>
+                        {i === 0 && !v.yanked && (
+                          <span className="rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-emerald-500">
+                            latest
+                          </span>
+                        )}
+                        {v.yanked && (
+                          <span className="rounded-full bg-red-500/15 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-red-500">
+                            yanked
+                          </span>
+                        )}
+                        v{v.version}
+                      </span>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-dim)' }}>
+                          <Calendar className="h-3 w-3" />
+                          {new Date(v.published_at).toLocaleDateString('en-US', {
+                            year: 'numeric', month: 'short', day: 'numeric',
+                          })}
                         </span>
-                      )}
-                      v{v.version}
-                    </span>
-                    <span className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--text-dim)' }}>
-                      <Calendar className="h-3 w-3" />
-                      {new Date(v.published_at).toLocaleDateString('en-US', {
-                        year: 'numeric', month: 'short', day: 'numeric',
-                      })}
-                    </span>
+                        <button
+                          onClick={async () => {
+                            try {
+                              await api.assets.yank(asset.name, v.version)
+                              refetch()
+                            } catch (e: any) {
+                              alert(e.message)
+                            }
+                          }}
+                          className="text-[10px] uppercase font-bold tracking-wider hover:opacity-70 transition-opacity"
+                          style={{ color: v.yanked ? '#34d399' : '#ef4444' }}
+                        >
+                          {v.yanked ? 'Restore' : 'Yank'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 ))}
               </div>

@@ -236,6 +236,41 @@ async def get_bundle_path(db: AsyncSession, name: str, version: str) -> str:
     return v.bundle_path
 
 
+async def yank_asset_version(db: AsyncSession, name: str, version: str, user: User) -> dict:
+    # Get asset to check permissions
+    asset = await get_asset(db, name, user_id=user.id)
+    
+    is_authorized = False
+    if asset.author_id == user.id:
+        is_authorized = True
+    elif asset.org_id:
+        stmt_role = select(OrgMember.role).where(
+            OrgMember.org_id == asset.org_id,
+            OrgMember.user_id == user.id
+        )
+        role = (await db.execute(stmt_role)).scalar_one_or_none()
+        if role == "owner":
+            is_authorized = True
+            
+    if not is_authorized:
+        raise HubException(403, "Not authorized to yank this asset")
+        
+    stmt = select(AssetVersion).join(Asset).where(
+        Asset.name == name,
+        AssetVersion.version == version
+    )
+    result = await db.execute(stmt)
+    v = result.scalar_one_or_none()
+    
+    if not v:
+        raise ResourceNotFoundException("Asset version")
+        
+    v.yanked = not v.yanked
+    await db.commit()
+    
+    return {"version": v.version, "yanked": v.yanked}
+
+
 async def recommend_assets(db: AsyncSession, tech_tags: list[str], limit: int = 10) -> AssetListOut:
     """Recommend assets based on overlapping tech tags and download count."""
     if not tech_tags:

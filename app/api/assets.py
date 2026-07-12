@@ -49,13 +49,22 @@ async def get_asset(
 
 @router.get("/{name}/versions")
 async def list_asset_versions(name: str, db: AsyncSession = Depends(get_db)):
-    """List all non-yanked versions for an asset in descending order."""
+    """List all versions for an asset in descending order."""
     asset = await asset_service.get_asset(db, name)
     return [
-        {"version": v.version, "published_at": v.published_at}
+        {"version": v.version, "published_at": v.published_at, "yanked": v.yanked}
         for v in asset.versions
-        if not v.yanked
     ]
+
+@router.patch("/{name}/{version}/yank")
+async def yank_asset_version(
+    name: str, 
+    version: str, 
+    user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db)
+):
+    """Toggle the yanked status of an asset version (author/org owner only)."""
+    return await asset_service.yank_asset_version(db, name, version, user)
 
 
 @router.post("/{name}/{version}", status_code=status.HTTP_201_CREATED, response_model=AssetOut)

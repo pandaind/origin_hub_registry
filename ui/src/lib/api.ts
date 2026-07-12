@@ -3,9 +3,15 @@ import type { Asset, AssetListOut, AssetVersion } from '@/types'
 const BASE = ''  // same origin via Vite proxy
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = localStorage.getItem('api_key')
+  const headers: HeadersInit = { 'Content-Type': 'application/json', ...init?.headers }
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
+  }
+  
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...init?.headers },
     ...init,
+    headers,
   })
   if (!res.ok) {
     const detail = await res.json().catch(() => ({ detail: res.statusText }))
@@ -32,6 +38,10 @@ export const api = {
 
     versions(name: string): Promise<AssetVersion[]> {
       return request<AssetVersion[]>(`/assets/${name}/versions`)
+    },
+
+    yank(name: string, version: string): Promise<{version: string, yanked: boolean}> {
+      return request<{version: string, yanked: boolean}>(`/assets/${name}/${version}/yank`, { method: 'PATCH' })
     },
   },
 }
