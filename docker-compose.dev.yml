@@ -51,6 +51,7 @@ services:
       - /ui/node_modules        # anonymous volume keeps node_modules in container
     environment:
       - CHOKIDAR_USEPOLLING=true  # needed for file-watching inside Docker on mac/win
+      - API_BASE_URL=http://hub-registry:8000  # use Docker service name for proxy
     command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
     depends_on:
       - hub-registry

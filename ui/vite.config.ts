@@ -13,15 +13,20 @@ export default defineConfig({
   },
   server: {
     port: 5173,
-    proxy: {
-      '/assets': { target: 'http://localhost:8000', changeOrigin: true },
-      '/auth':   { target: 'http://localhost:8000', changeOrigin: true },
-      '/orgs':   { target: 'http://localhost:8000', changeOrigin: true },
-      '/health': { target: 'http://localhost:8000', changeOrigin: true },
-      '/docs':   { target: 'http://localhost:8000', changeOrigin: true },
-      '/redoc':  { target: 'http://localhost:8000', changeOrigin: true },
-      '/openapi.json': { target: 'http://localhost:8000', changeOrigin: true },
-    },
+    proxy: (() => {
+      // When running inside Docker, use the service name. Outside Docker, use localhost.
+      const apiBase = process.env.API_BASE_URL || 'http://localhost:8000'
+      const proxyEntry = { target: apiBase, changeOrigin: true }
+      return {
+        '/assets':      proxyEntry,
+        '/auth':        proxyEntry,
+        '/orgs':        proxyEntry,
+        '/health':      proxyEntry,
+        '/docs':        proxyEntry,
+        '/redoc':       proxyEntry,
+        '/openapi.json': proxyEntry,
+      }
+    })(),
   },
   build: {
     outDir: '../app/static',
