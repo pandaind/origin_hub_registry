@@ -31,5 +31,6 @@ export default defineConfig({
   build: {
     outDir: '../app/static',
     emptyOutDir: true,
+    assetsDir: 'ui-assets',
   },
 })

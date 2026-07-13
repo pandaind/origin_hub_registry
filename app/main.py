@@ -31,12 +31,22 @@ app.include_router(orgs.router)
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    
+    ui_assets = STATIC_DIR / "ui-assets"
+    if ui_assets.exists():
+        app.mount("/ui-assets", StaticFiles(directory=ui_assets), name="ui_assets")
 
 
 @app.get("/", include_in_schema=False)
 async def dashboard():
     """Serve the Hub Registry web dashboard."""
     return FileResponse(STATIC_DIR / "index.html")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    """Serve the favicon."""
+    return FileResponse(STATIC_DIR / "favicon.ico")
 
 
 @app.on_event("startup")
