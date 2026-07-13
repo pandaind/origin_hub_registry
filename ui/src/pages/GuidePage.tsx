@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download, Settings } from 'lucide-react'
+import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download, Settings, Blocks, FileJson } from 'lucide-react'
 import { Header } from '@/components/Header'
 
 function CodeSnippet({ command, output, className = "mb-4" }: { command: string, output?: React.ReactNode, className?: string }) {
@@ -91,7 +91,11 @@ export function GuidePage() {
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
               Run this once on your machine to bootstrap necessary underlying tools. It will interactively ask for your preferred Methodology (Spec vs Agent Driven) and Execution Environment (CLI Toolchains vs IDE Native).
             </p>
-            <CodeSnippet command="origin setup" className="mb-8" />
+            <CodeSnippet command="origin setup" className="mb-6" />
+            
+            <p className="mb-8 text-sm italic" style={{ color: 'var(--text-muted)' }}>
+              <strong>Headroom AI:</strong> You can also opt-in to Headroom during setup, which transparently compresses prompt context windows (typically 60-95% reduction).
+            </p>
 
             <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Project Initialization</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
@@ -183,6 +187,76 @@ export function GuidePage() {
                 </p>
               </div>
 
+            </div>
+          </div>
+        </section>
+
+        {/* 4. Extensions */}
+        <section className="mb-14">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/15 text-orange-500">
+              <Blocks className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-bold">4. Extensions Management</h2>
+          </div>
+          
+          <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+            <p className="mb-6" style={{ color: 'var(--text-dim)' }}>
+              Origin acts as an orchestrator to manage vendor-neutral AI workspace extensions (packaging GitHub Copilot, Spec Kit, and MCP assets together).
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Scaffold new extension</p>
+                <CodeSnippet command="origin extension new <name>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Install extension</p>
+                <CodeSnippet command="origin extension add <path>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Enable / Disable</p>
+                <CodeSnippet command="origin extension enable <name>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>List / Info / Remove</p>
+                <CodeSnippet command="origin extension list" />
+              </div>
+            </div>
+          </div>
+        </section>
+        
+        {/* 5. Presets */}
+        <section className="mb-14">
+          <div className="mb-6 flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/15 text-pink-500">
+              <FileJson className="h-5 w-5" />
+            </div>
+            <h2 className="text-2xl font-bold">5. AI Process Presets</h2>
+          </div>
+          
+          <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
+            <p className="mb-6" style={{ color: 'var(--text-dim)' }}>
+              Origin securely wraps the native Spec Kit CLI to orchestrate the lifecycle of your custom AI process presets, without overriding Spec Kit's core functionality.
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Generate preset</p>
+                <CodeSnippet command="origin preset new <name>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Install preset</p>
+                <CodeSnippet command="origin preset add <path>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Enable / Disable</p>
+                <CodeSnippet command="origin preset disable <name>" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>List / Info / Remove</p>
+                <CodeSnippet command="origin preset info <name>" />
+              </div>
             </div>
           </div>
         </section>
