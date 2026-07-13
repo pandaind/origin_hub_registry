@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download, Settings, Blocks, FileJson } from 'lucide-react'
+import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download, Settings } from 'lucide-react'
 import { Header } from '@/components/Header'
 
 function CodeSnippet({ command, output, className = "mb-4" }: { command: string, output?: React.ReactNode, className?: string }) {
@@ -37,7 +37,7 @@ export function GuidePage() {
   return (
     <div className="min-h-screen" style={{ backgroundColor: 'var(--bg)', color: 'var(--text)' }}>
       <Header />
-      
+
       <main className="mx-auto max-w-4xl px-6 py-12 pb-24">
         <h1 className="mb-4 text-4xl font-extrabold tracking-tight">Origin CLI Guide</h1>
         <p className="mb-12 text-lg leading-relaxed" style={{ color: 'var(--text-dim)' }}>
@@ -52,7 +52,7 @@ export function GuidePage() {
             </div>
             <h2 className="text-2xl font-bold">1. Installation</h2>
           </div>
-          
+
           <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
             <p className="mb-4" style={{ color: 'var(--text-dim)' }}>
               The Origin CLI is distributed via <code className="text-sm font-semibold" style={{ color: 'var(--text)' }}>pipx</code> for isolated environments. Ensure you have Python 3.9+ installed.
@@ -81,7 +81,7 @@ export function GuidePage() {
             </div>
             <h2 className="text-2xl font-bold">2. Local Workspace Setup (Orchestration)</h2>
           </div>
-          
+
           <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
             <p className="mb-6" style={{ color: 'var(--text-dim)' }}>
               Origin bridges the gap between Spec Kit (The Manager) and Agent Forge (The Fleet of Workers). Get your environment up and running instantly.
@@ -89,22 +89,50 @@ export function GuidePage() {
 
             <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Global Setup</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-              Run this once on your machine to bootstrap necessary underlying tools. It will interactively ask for your preferred Methodology (Spec vs Agent Driven) and Execution Environment (CLI Toolchains vs IDE Native).
+              Run this once on your machine to bootstrap necessary underlying tools. It walks you through three interactive steps:
             </p>
-            <CodeSnippet command="origin setup" className="mb-6" />
             
-            <p className="mb-8 text-sm italic" style={{ color: 'var(--text-muted)' }}>
-              <strong>Headroom AI:</strong> You can also opt-in to Headroom during setup, which transparently compresses prompt context windows (typically 60-95% reduction).
-            </p>
+            <div className="mb-4 pl-4 border-l-2 border-white/10">
+              <p className="mb-2 text-sm text-white">Step 1 — Methodology</p>
+              <ul className="mb-4 list-disc pl-5 text-sm" style={{ color: 'var(--text-dim)' }}>
+                <li><strong>Spec Driven Development (SDD):</strong> Architect-first workflow using Spec Kit</li>
+                <li><strong>Agent Driven Development (ADD):</strong> Agent-first workflow using Agent Forge</li>
+              </ul>
+              
+              <p className="mb-2 text-sm text-white">Step 2 — Execution Environment</p>
+              <ul className="mb-4 list-disc pl-5 text-sm" style={{ color: 'var(--text-dim)' }}>
+                <li><strong>CLI Toolchains:</strong> Global Node/Python packages (specify-cli, agent-forge-copilot)</li>
+                <li><strong>IDE Native:</strong> Zero global dependencies (directly scaffolds rules into .github/.cursor)</li>
+              </ul>
+
+              <p className="mb-2 text-sm text-white">Step 3 — Headroom-AI</p>
+              <p className="mb-2 text-sm" style={{ color: 'var(--text-dim)' }}>
+                Optionally enable transparent prompt compression to reduce context window token usage by 60-95%.
+              </p>
+            </div>
+
+            <CodeSnippet command="origin setup" className="mb-4" />
+            
+            <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Non-interactive flags (Automation)</p>
+            <CodeSnippet command="origin setup --spec --copilot --headroom" className="mb-8" />
 
             <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Project Initialization</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-              Run this inside any project directory to initialize the AI workspace based on your setup preferences.
+              Run this inside any project directory to initialize the AI workspace based on your setup preferences. If you chose "CLI Toolchains", it orchestrates <code>forge init</code> and <code>specify init</code>. If you chose "IDE Native", it bypasses CLI tooling and scaffolds local agents natively.
             </p>
-            <CodeSnippet command="origin init" />
-            <p className="text-sm mt-4 italic" style={{ color: 'var(--text-muted)' }}>
-              Tip: Use <code>origin init --ide</code> for IDE-Only mode, or <code>origin init --extension jira</code> to inject specific integration templates!
-            </p>
+            <CodeSnippet command="origin init" className="mb-4" />
+            
+            <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Advanced Flags</p>
+            <div className="flex flex-col gap-4 mb-4">
+              <div>
+                <p className="text-sm mb-1" style={{ color: 'var(--text-dim)' }}>Force IDE Native initialization for a specific editor:</p>
+                <CodeSnippet command="origin init --ide [copilot|vscode|claude|cursor]" className="!mb-0" />
+              </div>
+              <div>
+                <p className="text-sm mb-1" style={{ color: 'var(--text-dim)' }}>Apply integration overrides (e.g., sync workflows to Jira issues):</p>
+                <CodeSnippet command="origin init --extension jira" className="!mb-0" />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -116,12 +144,12 @@ export function GuidePage() {
             </div>
             <h2 className="text-2xl font-bold">3. Origin Hub Registry</h2>
           </div>
-          
+
           <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
             <p className="mb-8" style={{ color: 'var(--text-dim)' }}>
               The <code>origin hub</code> command group allows you to discover, install, and publish AI assets (templates, skills, workflows) directly from your terminal.
             </p>
-            
+
             <div className="space-y-8">
               {/* Auth */}
               <div>
@@ -150,13 +178,13 @@ export function GuidePage() {
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
                   Auto-discover assets based on your tech stack (Java, Python, React), search manually, or install directly.
                 </p>
-                <CodeSnippet 
-                  command="origin hub discover" 
+                <CodeSnippet
+                  command="origin hub discover"
                   output={
                     <>
-                      Scanning project stack... Found <b>React</b> and <b>TypeScript</b>.<br/>
-                      Recommended assets:<br/>
-                      <span>[1] logicist/react-expert</span><br/>
+                      Scanning project stack... Found <b>React</b> and <b>TypeScript</b>.<br />
+                      Recommended assets:<br />
+                      <span>[1] logicist/react-expert</span><br />
                       <span>[2] logicist/typescript-skill</span>
                     </>
                   }
@@ -187,76 +215,6 @@ export function GuidePage() {
                 </p>
               </div>
 
-            </div>
-          </div>
-        </section>
-
-        {/* 4. Extensions */}
-        <section className="mb-14">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500/15 text-orange-500">
-              <Blocks className="h-5 w-5" />
-            </div>
-            <h2 className="text-2xl font-bold">4. Extensions Management</h2>
-          </div>
-          
-          <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
-            <p className="mb-6" style={{ color: 'var(--text-dim)' }}>
-              Origin acts as an orchestrator to manage vendor-neutral AI workspace extensions (packaging GitHub Copilot, Spec Kit, and MCP assets together).
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Scaffold new extension</p>
-                <CodeSnippet command="origin extension new <name>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Install extension</p>
-                <CodeSnippet command="origin extension add <path>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Enable / Disable</p>
-                <CodeSnippet command="origin extension enable <name>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>List / Info / Remove</p>
-                <CodeSnippet command="origin extension list" />
-              </div>
-            </div>
-          </div>
-        </section>
-        
-        {/* 5. Presets */}
-        <section className="mb-14">
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-pink-500/15 text-pink-500">
-              <FileJson className="h-5 w-5" />
-            </div>
-            <h2 className="text-2xl font-bold">5. AI Process Presets</h2>
-          </div>
-          
-          <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
-            <p className="mb-6" style={{ color: 'var(--text-dim)' }}>
-              Origin securely wraps the native Spec Kit CLI to orchestrate the lifecycle of your custom AI process presets, without overriding Spec Kit's core functionality.
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Generate preset</p>
-                <CodeSnippet command="origin preset new <name>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Install preset</p>
-                <CodeSnippet command="origin preset add <path>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>Enable / Disable</p>
-                <CodeSnippet command="origin preset disable <name>" />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>List / Info / Remove</p>
-                <CodeSnippet command="origin preset info <name>" />
-              </div>
             </div>
           </div>
         </section>
