@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download } from 'lucide-react'
+import { Terminal, Copy, Check, CloudUpload, Zap, Globe, Search, Download, Settings } from 'lucide-react'
 import { Header } from '@/components/Header'
 
 function CodeSnippet({ command, output, className = "mb-4" }: { command: string, output?: React.ReactNode, className?: string }) {
@@ -55,20 +55,29 @@ export function GuidePage() {
           
           <div className="rounded-2xl border p-6" style={{ borderColor: 'var(--border)', backgroundColor: 'var(--surface-2)' }}>
             <p className="mb-4" style={{ color: 'var(--text-dim)' }}>
-              The Origin CLI is distributed as a Python package. Ensure you have Python 3.9+ installed.
+              The Origin CLI is distributed via <code className="text-sm font-semibold" style={{ color: 'var(--text)' }}>pipx</code> for isolated environments. Ensure you have Python 3.9+ installed.
             </p>
-            <CodeSnippet command="pip install git+https://github.com/pandaind/origin-cli.git" />
-            <p className="text-sm mt-4" style={{ color: 'var(--text-muted)' }}>
-              Once published, you will be able to install it directly via <code>pip install origin-cli</code>.
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>1. Install pipx (e.g., macOS)</p>
+                <CodeSnippet command="brew install pipx && pipx ensurepath" className="mb-2" />
+              </div>
+              <div>
+                <p className="mb-2 text-sm font-semibold" style={{ color: 'var(--text)' }}>2. Install Origin CLI</p>
+                <CodeSnippet command="pipx install git+https://github.com/pandaind/origin-cli.git" />
+              </div>
+            </div>
+            <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
+              Once published, you will be able to install it directly via <code>pipx install origin-cli</code>.
             </p>
           </div>
         </section>
 
-        {/* 2. AI Workspace Orchestration */}
+        {/* 2. Workspace Setup */}
         <section className="mb-14">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500/15 text-purple-500">
-              <Zap className="h-5 w-5" />
+              <Settings className="h-5 w-5" />
             </div>
             <h2 className="text-2xl font-bold">2. Local Workspace Setup (Orchestration)</h2>
           </div>
@@ -80,13 +89,13 @@ export function GuidePage() {
 
             <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Global Setup</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-              Run this once on your machine to bootstrap necessary underlying tools (Node, npm, GitHub Copilot CLI, Spec Kit, Headroom AI).
+              Run this once on your machine to bootstrap necessary underlying tools. It will interactively ask for your preferred Methodology (Spec vs Agent Driven) and Execution Environment (CLI Toolchains vs IDE Native).
             </p>
             <CodeSnippet command="origin setup" className="mb-8" />
 
             <h3 className="mb-3 text-lg font-semibold" style={{ color: 'var(--text)' }}>Project Initialization</h3>
             <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-              Run this inside any project directory to initialize the AI workspace. It scans your repository, generates implementation agents, and installs base Spec Kit commands.
+              Run this inside any project directory to initialize the AI workspace based on your setup preferences.
             </p>
             <CodeSnippet command="origin init" />
             <p className="text-sm mt-4 italic" style={{ color: 'var(--text-muted)' }}>
@@ -95,7 +104,7 @@ export function GuidePage() {
           </div>
         </section>
 
-        {/* 3. The Origin Hub Registry */}
+        {/* 3. Hub Registry */}
         <section className="mb-14">
           <div className="mb-6 flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500/15 text-emerald-500">
@@ -116,7 +125,7 @@ export function GuidePage() {
                   <Terminal className="h-4 w-4 text-purple-400" /> Authentication
                 </h3>
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-                  If your registry is hosted securely, or if you plan to publish assets, you must authenticate. The CLI stores your secure API key locally.
+                  If your registry is hosted securely, or if you plan to publish assets, you must authenticate.
                 </p>
                 <CodeSnippet command="origin hub login" className="mb-2" />
                 <div className="flex flex-col sm:flex-row gap-4">
@@ -165,21 +174,13 @@ export function GuidePage() {
                   <CloudUpload className="h-4 w-4 text-amber-400" /> Publishing
                 </h3>
                 <p className="mb-3 text-sm" style={{ color: 'var(--text-dim)' }}>
-                  To publish, create a <code>hub-manifest.json</code> in your asset directory, then run the publish command.
+                  Scaffold a new asset with <code>origin hub create</code>, which generates your <code>hub-manifest.json</code> automatically, then publish it.
                 </p>
-                <div className="relative mb-4 overflow-hidden rounded-lg bg-slate-950 p-4 font-mono text-sm shadow-inner text-gray-300">
-                  <div className="mb-2 text-xs font-semibold text-gray-500">hub-manifest.json</div>
-                  <pre className="text-gray-300">
-{`{
-  "name": "my-react-expert",
-  "version": "1.0.0",
-  "type": "skill",
-  "author": "logicist",
-  "files": ["react-expert.agent.md"]
-}`}
-                  </pre>
-                </div>
-                <CodeSnippet command="origin hub publish ./path-to-asset/" />
+                <CodeSnippet command="origin hub create my-database-expert --type agent" className="mb-4" />
+                <CodeSnippet command="origin hub publish ./my-database-expert" />
+                <p className="text-sm mt-3" style={{ color: 'var(--text-muted)' }}>
+                  <strong>Magic Under the Hood:</strong> You do not need to manually list your files in the manifest! The CLI packager will automatically detect all files in your directory and bundle them.
+                </p>
               </div>
 
             </div>
