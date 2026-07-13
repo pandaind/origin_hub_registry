@@ -7,6 +7,7 @@ from pydantic import BaseModel, EmailStr, field_validator
 class RegisterRequest(BaseModel):
     username: str
     email: EmailStr
+    password: str
 
     @field_validator("username")
     @classmethod
@@ -16,6 +17,23 @@ class RegisterRequest(BaseModel):
         if len(v) < 3 or len(v) > 64:
             raise ValueError("Username must be 3–64 characters")
         return v.lower()
+
+    @field_validator("password")
+    @classmethod
+    def password_valid(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        return v
+
+
+class LoginRequest(BaseModel):
+    username_or_email: str
+    password: str
+
+
+class LoginResponse(BaseModel):
+    api_key: str
+    message: str = "Store your API key securely — it will not be shown again."
 
 
 class RegisterResponse(BaseModel):
@@ -29,6 +47,7 @@ class UserOut(BaseModel):
     id: str
     username: str
     email: str
+    role: str
     created_at: datetime
 
     model_config = {"from_attributes": True}

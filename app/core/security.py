@@ -6,11 +6,25 @@ from fastapi.security.api_key import APIKeyHeader
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from passlib.context import CryptContext
+
 from app.db.database import get_db
 from app.models.user import ApiKey, User
 
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies a plain password against the hashed password."""
+    return pwd_context.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password: str) -> str:
+    """Hashes a password for storage."""
+    return pwd_context.hash(password)
 
 
 def generate_api_key() -> tuple[str, str]:
