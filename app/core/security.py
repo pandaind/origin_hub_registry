@@ -90,3 +90,15 @@ async def get_optional_user(
         return await get_current_user(api_key_header=api_key_header, db=db)
     except HTTPException:
         return None
+
+
+async def get_admin_user(
+    current_user: User = Depends(get_current_user)
+) -> User:
+    """Dependency to ensure the current user has the global 'admin' role."""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Insufficient permissions. Global admin role required."
+        )
+    return current_user

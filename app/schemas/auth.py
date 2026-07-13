@@ -60,3 +60,7 @@ class ApiKeyOut(BaseModel):
     last_used_at: Optional[datetime]
 
     model_config = {"from_attributes": True}
+
+
+class RoleUpdateRequest(BaseModel):
+    role: str

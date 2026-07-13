@@ -5,7 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api import assets, auth, orgs
+from app.api import admin, assets, auth, orgs
 from app.db.database import create_tables
 from app.models import org  # noqa: F401 — ensures ORM tables are registered
 
@@ -28,6 +28,7 @@ app.add_middleware(
 app.include_router(auth.router)
 app.include_router(assets.router)
 app.include_router(orgs.router)
+app.include_router(admin.router)
 
 if STATIC_DIR.exists():
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
