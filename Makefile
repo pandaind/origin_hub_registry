@@ -23,8 +23,16 @@ push: ## Push the image to Docker Hub
 	docker push $(IMAGE):$(TAG)
 	docker push $(IMAGE):sha-$$(git rev-parse --short HEAD 2>/dev/null || echo local)
 
-publish: build push ## Build + push in one step (requires docker login)
-	@echo "✅ Published $(IMAGE):$(TAG) to Docker Hub"
+publish: ## Build + push multi-architecture image (amd64, arm64) in one step
+	docker buildx create --use || true
+	docker buildx build --platform linux/amd64,linux/arm64 \
+		--label "org.opencontainers.image.created=$$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+		--label "org.opencontainers.image.revision=$$(git rev-parse --short HEAD 2>/dev/null || echo unknown)" \
+		-t $(IMAGE):$(TAG) \
+		-t $(IMAGE):sha-$$(git rev-parse --short HEAD 2>/dev/null || echo local) \
+		--push \
+		.
+	@echo "✅ Published multi-arch $(IMAGE):$(TAG) to Docker Hub"
 	@echo "   Pull on any machine with: docker pull $(IMAGE):$(TAG)"
 
 # ── Production ────────────────────────────────────────────────────────────────

@@ -13,6 +13,7 @@ name: origin-hub
 services:
   hub-registry:
     image: ${IMAGE_NAME:-logicist/origin-hub-registry}:${IMAGE_TAG:-latest}
+    pull_policy: always
     build:
       context: .
       dockerfile: Dockerfile

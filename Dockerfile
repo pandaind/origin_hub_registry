@@ -1,5 +1,5 @@
 # ── Stage 1: Build React UI ───────────────────────────────────────────────────
-FROM node:20-alpine AS node-builder
+FROM node:20-slim AS node-builder
 
 WORKDIR /build/ui
 
@@ -55,6 +55,9 @@ COPY --from=python-builder /install /usr/local
 
 # Copy application source
 COPY app/ ./app/
+
+# Copy utilities
+COPY scripts/ ./scripts/
 
 # Copy the compiled React SPA (written to app/static by vite build)
 COPY --from=node-builder /build/app/static ./app/static/

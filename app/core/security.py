@@ -6,7 +6,7 @@ from fastapi.security.api_key import APIKeyHeader
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from passlib.context import CryptContext
+
 
 from app.db.database import get_db
 from app.models.user import ApiKey, User
@@ -14,17 +14,22 @@ from app.models.user import ApiKey, User
 
 api_key_header = APIKeyHeader(name="Authorization", auto_error=False)
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+import bcrypt
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verifies a plain password against the hashed password."""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        # Truncate to 72 chars to support bcrypt limitations on long inputs (e.g. from CLI hashes)
+        return bcrypt.checkpw(plain_password[:72].encode('utf-8'), hashed_password.encode('utf-8'))
+    except ValueError:
+        return False
 
 
 def get_password_hash(password: str) -> str:
     """Hashes a password for storage."""
-    return pwd_context.hash(password)
+    salt = bcrypt.gensalt()
+    # Truncate to 72 chars to support bcrypt limitations on long inputs (e.g. from CLI hashes)
+    return bcrypt.hashpw(password[:72].encode('utf-8'), salt).decode('utf-8')
 
 
 def generate_api_key() -> tuple[str, str]:

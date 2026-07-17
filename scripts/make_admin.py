@@ -6,6 +6,8 @@ from sqlalchemy import select
 
 from app.db.database import AsyncSessionLocal
 from app.models.user import User
+from app.models.asset import Asset
+from app.models.org import Organization
 
 async def make_admin(username_or_email: str):
     async with AsyncSessionLocal() as session:
